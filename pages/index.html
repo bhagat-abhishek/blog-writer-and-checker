@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog Writer - Project 0R</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        flex-direction: column;
+      }
+      .card {
+        width: 100%;
+        max-width: 600px;
+        margin-bottom: 20px;
+      }
+      .output-section,
+      .info-section {
+        width: 100%;
+        max-width: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Card with input fields -->
+      <div class="card" id="inputForm">
+        <div class="card-body">
+          <h5 class="card-title">Blog Writer</h5>
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input
+              type="text"
+              class="form-control"
+              id="title"
+              placeholder="your title or topic goes here"
+            />
+          </div>
+          <div class="form-group">
+            <label for="instructions">Instructions</label>
+            <textarea
+              class="form-control"
+              id="instruction"
+              rows="3"
+              placeholder="prompt and instructions"
+            ></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary m-2" id="getDataButton">
+            Get Data
+          </button>
+        </div>
+      </div>
+
+      <div
+        class="alert alert-primary info-section"
+        role="alert"
+        id="status"
+        style="display: none"
+      >
+        wait while we do it for you
+      </div>
+
+      <!-- Info section -->
+      <div
+        class="info-section card p-3 mt-3"
+        id="infoSection"
+        style="display: none"
+      >
+        <h5>Info</h5>
+        <div class="row">
+          <div class="col">
+            <p>Number of Words : <span id="num_of_words"></span></p>
+            <p>Results Found: <span id="results_found"></span></p>
+          </div>
+          <div class="col">
+            <p>Plagiarism: <span id="plagiarism_score"></span></p>
+            <p>Unique: <span id="unique_score"></span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output section -->
+      <div
+        class="output-section card p-3"
+        id="outputSection"
+        style="display: none"
+      >
+        <div class="row">
+          <div class="col-xl">
+            <h5>Output Text</h5>
+          </div>
+          <div class="col-xl d-flex justify-content-end">
+            <button class="btn btn-secondary m-3" id="copyButton">Copy</button>
+          </div>
+        </div>
+        <p id="outputText" class="border p-2" contenteditable="true"></p>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const getDataButton = document.getElementById("getDataButton");
+        const inputForm = document.getElementById("inputForm");
+        const statusSection = document.getElementById("status");
+        const infoSection = document.getElementById("infoSection");
+        const outputSection = document.getElementById("outputSection");
+
+        let num_of_words = document.getElementById("num_of_words");
+        let results_found = document.getElementById("results_found");
+        let plagiarism_score = document.getElementById("plagiarism_score");
+        let unique_score = document.getElementById("unique_score");
+
+        let outputText = document.getElementById("outputText");
+
+        // On button click process data
+        getDataButton.addEventListener("click", async () => {
+          const title = document.getElementById("title").value;
+          const instruction = document.getElementById("instruction").value;
+
+          if (!title || !instruction) {
+            return;
+          }
+
+          //   Hide the form
+          inputForm.style.display = "none";
+          //   Show the status form
+          statusSection.style.display = "block";
+
+          try {
+            const response = await fetch("/", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ title, instruction }),
+            });
+
+            if (!response.ok) {
+              throw new Error("Failed to send data");
+            }
+
+            //   Hide the status form
+            statusSection.style.display = "none";
+
+            const data = await response.json();
+
+            //   Show info Section
+            infoSection.style.display = "block";
+            // updating value
+            num_of_words.innerText = data.wordCount;
+            results_found.innerText = data.resultsFound;
+            plagiarism_score.innerText = data.plagiarismPercentage;
+            unique_score.innerText = data.uniquePercentage;
+
+            //   showing output text
+            outputSection.style.display = "block";
+
+            // setting output text value
+            outputText.innerText = data.content;
+          } catch (error) {
+            statusSection.style.display = "block";
+            statusSection.innerText =
+              "Something went wrong, please try again later";
+          }
+        });
+
+        // Function to copy to clipboard
+        const copyBtn = document.getElementById("copyButton");
+        copyBtn.addEventListener("click", function () {
+          const outputText = document.getElementById("outputText").innerText;
+
+          navigator.clipboard
+            .writeText(outputText)
+            .then(() => {
+              copyBtn.textContent = "Copied";
+            })
+            .catch((err) => {
+              console.error("Failed to copy text: ", err);
+            });
+        });
+      });
+    </script>
+  </body>
+</html>
