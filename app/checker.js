@@ -31,19 +31,7 @@ puppeteer.use(
 );
 
 export async function getCheck(text) {
-  const browser = await puppeteer.launch({
-    args: [
-      "--disable-setuid-sandbox",
-      "--no-sandbox",
-      "-single-process",
-      "--no-zygote",
-    ],
-    executablePath:
-      process.env.NODE_ENV === "production"
-        ? process.env.PUPPETEER_EXECUTABLE_PATH
-        : puppeteer.executablePath(),
-    headless: true,
-  });
+  const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
   await page.goto("https://www.duplichecker.com", {
     waitUntil: "networkidle2",
