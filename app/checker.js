@@ -44,6 +44,12 @@ export async function getCheck(text) {
         : puppeteer.executablePath(),
   });
   const page = await browser.newPage();
+  
+  // User Agent Setting
+  const ua =
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36";
+  await page.setUserAgent(ua);
+  
   await page.goto("https://www.duplichecker.com", {
     waitUntil: "networkidle2",
   });
