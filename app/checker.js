@@ -42,7 +42,6 @@ export async function getCheck(text) {
       process.env.NODE_ENV === "production"
         ? process.env.PUPPETEER_EXECUTABLE_PATH
         : puppeteer.executablePath(),
-    headless: false,
   });
   const page = await browser.newPage();
   await page.goto("https://www.duplichecker.com", {
