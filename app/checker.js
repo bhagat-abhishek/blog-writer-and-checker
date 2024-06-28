@@ -42,7 +42,7 @@ export async function getCheck(text) {
       process.env.NODE_ENV === "production"
         ? process.env.PUPPETEER_EXECUTABLE_PATH
         : puppeteer.executablePath(),
-    headless: true,
+    headless: false,
   });
   const page = await browser.newPage();
   await page.goto("https://www.duplichecker.com", {
@@ -51,6 +51,15 @@ export async function getCheck(text) {
 
   // Size of browser
   await page.setViewport({ width: 1080, height: 1024 });
+
+  // Wait for the search box to be available
+  try {
+    await page.waitForSelector("#textBox", { visible: true, timeout: 10000 });
+  } catch (error) {
+    console.error("Error: No element found for selector: #textBox");
+    await browser.close();
+    throw error;
+  }
 
   // Type into search box
   await page.type("#textBox", text);
